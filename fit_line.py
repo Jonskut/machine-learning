@@ -2,8 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# Linear Solver
 def my_linfit(x_points, y_points):
+    """
+    Linear solver
+    :param x_points: list, of x coordinates
+    :param y_points: list, of y coordinates
+    :return: float, a and b of linear equation
+    """
     n = len(x_points)
     a_num = sum(x_points * y_points) - (sum(x_points) * sum(y_points)) / n
     a_den = sum(x_points ** 2) - ((sum(x_points)) ** 2) / n
@@ -15,8 +20,12 @@ def my_linfit(x_points, y_points):
     return a, b
 
 
-# Event handler for mouse clicks
 def on_click(event):
+    """
+    Mouse event handler
+    :param event: button click on mouse (left or right click)
+    :return: none
+    """
     global x, y
     global is_line
 
@@ -24,22 +33,22 @@ def on_click(event):
     if event.button == 1 and not is_line:
         x.append(event.xdata)
         y.append(event.ydata)
-        plt.plot(event.xdata, event.ydata, 'ko')  # Plot the point
-        plt.draw()  # Update the plot
+        plt.plot(event.xdata, event.ydata, 'ko')
+        plt.draw()
 
     # Draw line
     elif event.button == 3 and not is_line and x and y:
         x_numpy = np.array(x)
         y_numpy = np.array(y)
 
-        # Calculate the fit
+        # Calculate fit
         a, b = my_linfit(x_numpy, y_numpy)
 
         # Plot the fitted line
         xp = np.linspace(min(x), max(x), 100)
         plt.plot(xp, a * xp + b, 'r-')
 
-        plt.draw()  # Update the plot
+        plt.draw()
         is_line = True
 
         ax.set_title("Right click to reset view")
@@ -58,7 +67,13 @@ def on_click(event):
         plt.draw()
 
 
-# Main
+def main():
+    """
+    Program for linear regression
+    :return: none
+    """
+
+
 # List of points
 x = []
 y = []
@@ -74,3 +89,6 @@ ax.set_ylim([-10, 10])
 
 cid = fig.canvas.mpl_connect('button_press_event', on_click)
 plt.show()
+
+if __name__ == "main":
+    main()
