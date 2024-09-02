@@ -45,7 +45,7 @@ def on_click(event):
         a, b = my_linfit(x_numpy, y_numpy)
 
         # Plot the fitted line
-        xp = np.linspace(min(x), max(x), 100)
+        xp = np.arange(min(x), max(x), 0.1)
         plt.plot(xp, a * xp + b, 'r-')
 
         plt.draw()
