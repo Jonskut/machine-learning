@@ -3,14 +3,14 @@ import numpy as np
 
 
 # Linear Solver
-def my_linfit(x, y):
-    n = len(x)
-    a_num = sum(x * y) - (sum(x) * sum(y)) / n
-    a_den = sum(x ** 2) - ((sum(x))**2) / n
+def my_linfit(x_points, y_points):
+    n = len(x_points)
+    a_num = sum(x_points * y_points) - (sum(x_points) * sum(y_points)) / n
+    a_den = sum(x_points ** 2) - ((sum(x_points)) ** 2) / n
 
     a = a_num / a_den
 
-    b = (sum(y) - (a * sum(x))) / n
+    b = (sum(y_points) - (a * sum(x_points))) / n
 
     return a, b
 
