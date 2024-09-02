@@ -51,6 +51,7 @@ def on_click(event):
         plt.draw()
         is_line = True
 
+        print(f"My fit: a = {a} and b = {b}")
         ax.set_title("Right click to reset view")
 
     # Reset view and points
