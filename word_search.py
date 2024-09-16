@@ -57,6 +57,6 @@ while True:
 
         print("\n                               Word       Distance\n")
         print("---------------------------------------------------------\n")
-        for i in range(3):
+        for i in range(5):
             word, distance = similar_words[i]
             print("%35s\t\t%f\n" % (word, distance))
