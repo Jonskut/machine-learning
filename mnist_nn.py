@@ -84,12 +84,12 @@ def load_dataset(dataset_name):
         # Load Fashion MNIST dataset
         (x_train, y_train), (x_test, y_test) = \
             tf.keras.datasets.fashion_mnist.load_data()
-        print("Using Fashion MNIST dataset")
+        print("Using fashion MNIST dataset")
     elif dataset_name == 'original':
         # Load original MNIST dataset
         (x_train, y_train), (x_test, y_test) = \
             tf.keras.datasets.mnist.load_data()
-        print("Using Original MNIST dataset")
+        print("Using original MNIST dataset")
     else:
         raise ValueError(
             "Invalid dataset name. Choose 'fashion' or 'original'.")
