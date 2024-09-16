@@ -3,6 +3,7 @@ import tensorflow as tf
 import random as rand
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
+import argparse
 
 
 def class_acc(pred, gt):
@@ -46,27 +47,52 @@ def show_accuracy(x_test_flat, x_test, y_test, knn):
             plt.pause(1)
 
     acc = class_acc(predictions, y_test)
-    print(f"accuracy {acc*100}%")
+    print(f"Classification accuracy is {acc:.2f}")
+
+
+def load_dataset(dataset_name):
+    if dataset_name == 'fashion':
+        # Load Fashion MNIST dataset
+        (x_train, y_train), (x_test, y_test) = \
+            tf.keras.datasets.fashion_mnist.load_data()
+        print("Using Fashion MNIST dataset")
+    elif dataset_name == 'original':
+        # Load original MNIST dataset
+        (x_train, y_train), (x_test, y_test) = \
+            tf.keras.datasets.mnist.load_data()
+        print("Using Original MNIST dataset")
+    else:
+        raise ValueError(
+            "Invalid dataset name. Choose 'fashion' or 'original'.")
+
+    return (x_train, y_train), (x_test, y_test)
 
 
 def main():
-    # Original
-    mnist = tf.keras.datasets.mnist
-    # New
-    # mnist = tf.keras.datasets.fashion_mnist
+    parser = argparse.ArgumentParser(
+        prog="mnist_nn.py",
+        description="Image classifier using MNIST dataset"
+    )
 
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    parser.add_argument(
+        "dataset",
+        type=str,
+        choices=["original", "fashion"]
+    )
 
-    # Print the size of training and test data
-    print(f'x_train shape {x_train.shape}')
-    print(f'y_train shape {y_train.shape}')
-    print(f'x_test shape {x_test.shape}')
-    print(f'y_test shape {y_test.shape}')
+    args = parser.parse_args()
 
+    # Load the chosen dataset
+    (x_train, y_train), (x_test, y_test) = load_dataset(args.dataset)
+
+    # Flatten image matrices
     x_train = flatten(x_train)
     x_test_flat = flatten(x_test)
 
+    # Train model
     knn = train(x_train, y_train)
+
+    # Show some images and accuracy of model
     show_accuracy(x_test_flat, x_test, y_test, knn)
 
 
