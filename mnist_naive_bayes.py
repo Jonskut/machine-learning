@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import random as rand
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
 import argparse
 
 
@@ -28,35 +27,71 @@ def class_acc(pred, gt):
 
 def flatten(images):
     """
-    Takes a 28x28 image and shapes it into a 1D vector
+    Takes an image and shapes it into a 1D vector
     :param images: array of images
     :return: list, flattened vector
     """
-    return images.reshape(images.shape[0], 28 * 28)
+
+    num_images = images.shape[0]
+    num_pixels = images.shape[1]**2
+    return images.reshape(num_images, num_pixels)
 
 
-def train_knn(x_train, y_train):
+def calculate_gaussian_vectors(x_train, y_train):
     """
-    trains 1nn-model with scikit learn
+    trains classifier model using naive Bayesian method
     :param x_train: flattened image vector
-    :param y_train: training labels
-    :return: trained 1nn-model parameters
+    :param y_train: label vector
+    :return: mean and variance vectors
     """
-    knn = KNeighborsClassifier(n_neighbors=1)
-    knn.fit(x_train, y_train)
-    return knn
+    print("Calculating vectors...")
+
+    # Add noise to data
+    noise_x = np.random.normal(loc=0.0, scale=10, size=x_train.shape)
+    x_train = x_train + noise_x
+
+    num_classes = len(set(y_train))  # 10
+    num_pixels = x_train.shape[1]  # 784
+
+    # Initialize matrix of covariance and mean vectors
+    mu = np.zeros((num_classes, num_pixels))
+    sg = np.zeros((num_classes, num_pixels))
+
+    for c in range(num_classes):
+        # Search all samples belonging to class c
+        class_samples = x_train[y_train == c]
+
+        mu[c, :] = np.mean(class_samples, axis=0)
+        sg[c, :] = np.var(class_samples, axis=0)
+
+    return mu, sg
 
 
-def show_accuracy(x_test_flat, x_test, y_test, knn):
+def compute_likelihood(x_test_flat, x_test, y_test, mu, sg):
     """
     shows accuracy and some images to see results of training
     :param x_test_flat: list, flattened image vector
     :param x_test: 28x28 image array
     :param y_test: vector of correct labels
-    :param knn: trained nearest-neighbor model
+    :param mu: mean vector
+    :param sg: covariance vector
     :return: none
     """
-    predictions = knn.predict(x_test_flat)
+    print("Computing likelihood...")
+
+    predictions = []
+
+    # Iterate over every class for every test sample
+    for i in range(x_test_flat.shape[0]):
+        likelihoods = []
+        for c in range(len(set(y_test))):
+            likelihood = np.sum(-0.5 * (np.log(2*np.pi)+np.log(sg[c]) +
+                                        1 / sg[c] * (x_test_flat[i]-mu[c])**2))
+            likelihoods.append(likelihood)
+
+        # Append prediction with maximum likelihood estimation's corresponding
+        # class
+        predictions.append(np.argmax(likelihoods))
 
     for i in range(x_test_flat.shape[0]):
         # Show some images randomly
@@ -118,11 +153,11 @@ def main():
     x_train = flatten(x_train)
     x_test_flat = flatten(x_test)
 
-    # Train model
-    knn = train_knn(x_train, y_train)
+    # Calculate mean and covariance vectors
+    mu, sg = calculate_gaussian_vectors(x_train, y_train)
 
     # Show some images and accuracy of model
-    show_accuracy(x_test_flat, x_test, y_test, knn)
+    compute_likelihood(x_test_flat, x_test, y_test, mu, sg)
 
 
 if __name__ == "__main__":
