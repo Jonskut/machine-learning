@@ -79,12 +79,14 @@ def compute_likelihood(x_test_flat, x_test, y_test, mu, sg):
     """
     print("Computing likelihood...")
 
+    num_classes = len(set(y_test))
+    num_samples = x_test_flat.shape[0]
     predictions = []
 
     # Iterate over every class for every test sample
-    for i in range(x_test_flat.shape[0]):
+    for i in range(num_samples):
         likelihoods = []
-        for c in range(len(set(y_test))):
+        for c in range(num_classes):
             likelihood = np.sum(-0.5 * (np.log(2*np.pi)+np.log(sg[c]) +
                                         1 / sg[c] * (x_test_flat[i]-mu[c])**2))
             likelihoods.append(likelihood)
