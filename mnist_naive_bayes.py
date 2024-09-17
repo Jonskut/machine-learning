@@ -74,7 +74,7 @@ def compute_likelihood(x_test_flat, x_test, y_test, mu, sg):
     :param x_test: 28x28 image array
     :param y_test: vector of correct labels
     :param mu: mean vector
-    :param sg: covariance vector
+    :param sg: variance vector
     :return: none
     """
     print("Computing likelihood...")
