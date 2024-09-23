@@ -4,7 +4,8 @@ import random as rand
 import numpy as np
 import argparse
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.layers import Conv2D, MaxPooling2D,\
+    Flatten, Dense, Dropout
 import keras
 from keras.utils import to_categorical
 from keras import Input
@@ -40,6 +41,11 @@ def flatten(images):
 
 
 def hotify(y_train):
+    """
+    turns training data to one-hot encoding
+    :param y_train: training data
+    :return: one-hot encoded data
+    """
     # One-hot encode the labels
     y_train = to_categorical(y_train, num_classes=10)
 
@@ -47,6 +53,12 @@ def hotify(y_train):
 
 
 def create_model(x_train, y_train):
+    """
+    Creates NN model, trains it and shows loss progression
+    :param x_train: MNIST training data
+    :param y_train: MNIST training labels
+    :return: NN model
+    """
     # Initialize model and input shape
     model = Sequential()
     model.add(Input(shape=(784,)))
@@ -85,7 +97,6 @@ def show_accuracy(x_test_flat, x_test, y_test, model):
     """
     predict = model.predict(x_test_flat)
     predictions = np.argmax(predict, axis=1)
-    print(predictions)
 
     for i in range(x_test_flat.shape[0]):
         # Show some images randomly
