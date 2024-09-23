@@ -2,8 +2,12 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import random as rand
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
 import argparse
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+import keras
+from keras.utils import to_categorical
+from keras import Input
 
 
 def class_acc(pred, gt):
@@ -17,8 +21,8 @@ def class_acc(pred, gt):
     # Calculate difference of vectors
     difference = np.subtract(pred, gt)
     # Amount of zeros is amount of correct guesses
-    for vec in difference:
-        if set(vec) == {0}:
+    for num in difference:
+        if num == 0:
             zeros_amount += 1
 
     # Normalize
@@ -36,37 +40,49 @@ def flatten(images):
 
 
 def hotify(y_train):
-    vecs = []
-    for c in y_train:
-        vec = np.zeros((10,), dtype=int)
-        vec[c] = 1
-        vecs.append(vec)
-        print(f"{c} ------ {vec}")
-    return vecs
+    # One-hot encode the labels
+    y_train = to_categorical(y_train, num_classes=10)
+
+    return y_train
 
 
-def train_knn(x_train, y_train):
-    """
-    trains 1nn-model with scikit learn
-    :param x_train: flattened image vector
-    :param y_train: training labels
-    :return: trained 1nn-model parameters
-    """
-    knn = KNeighborsClassifier(n_neighbors=1)
-    knn.fit(x_train, y_train)
-    return knn
+def create_model(x_train, y_train):
+    model = Sequential()
+
+    sgd = keras.optimizers.SGD(learning_rate=0.5)
+
+    model.compile(optimizer=sgd, loss='mse', metrics=['mse'])
+
+    model.add(Input(shape=(784,)))
+
+    # Building the model architecture
+    model.add(Dense(5, activation='sigmoid'))
+    model.add(Dense(10, activation='sigmoid'))
+
+    # Train the model
+    tr_hist = model.fit(x_train, y_train, epochs=15, verbose=1)
+
+    # Plot training loss over epochs
+    plt.plot(tr_hist.history['loss'])
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.show()
+
+    return model
 
 
-def show_accuracy(x_test_flat, x_test, y_test, knn):
+def show_accuracy(x_test_flat, x_test, y_test, model):
     """
     shows accuracy and some images to see results of training
     :param x_test_flat: list, flattened image vector
     :param x_test: 28x28 image array
     :param y_test: vector of correct labels
-    :param knn: trained nearest-neighbor model
+    :param model: trained neural network model
     :return: none
     """
-    predictions = knn.predict(x_test_flat)
+    predict = model.predict(x_test_flat)
+    predictions = np.argmax(predict, axis=1)
+    print(predictions)
 
     for i in range(x_test_flat.shape[0]):
         # Show some images randomly
@@ -116,7 +132,7 @@ def main():
     parser.add_argument(
         "dataset",
         type=str,
-        choices=["original", "fashion", ""]
+        choices=["original", "fashion"]
     )
 
     args = parser.parse_args()
@@ -130,13 +146,12 @@ def main():
 
     # "Hotify" y-vectors
     y_train = hotify(y_train)
-    y_test = hotify(y_test)
 
     # Train model
-    knn = train_knn(x_train, y_train)
+    model = create_model(x_train, y_train)
 
     # Show some images and accuracy of model
-    show_accuracy(x_test_flat, x_test, y_test, knn)
+    show_accuracy(x_test_flat, x_test, y_test, model)
 
 
 if __name__ == "__main__":
