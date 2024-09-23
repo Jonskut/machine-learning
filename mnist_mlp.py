@@ -4,7 +4,7 @@ import random as rand
 import numpy as np
 import argparse
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 import keras
 from keras.utils import to_categorical
 from keras import Input
@@ -47,20 +47,23 @@ def hotify(y_train):
 
 
 def create_model(x_train, y_train):
+    # Initialize model and input shape
     model = Sequential()
+    model.add(Input(shape=(784,)))
 
-    sgd = keras.optimizers.SGD(learning_rate=0.5)
+    # Optimizer
+    sgd = keras.optimizers.SGD(learning_rate=0.1)
+
+    # Fully connected layers
+    model.add(Dense(128, activation='sigmoid'))
+
+    # Output layer
+    model.add(Dense(10, activation='sigmoid'))
 
     model.compile(optimizer=sgd, loss='mse', metrics=['mse'])
 
-    model.add(Input(shape=(784,)))
-
-    # Building the model architecture
-    model.add(Dense(5, activation='sigmoid'))
-    model.add(Dense(10, activation='sigmoid'))
-
     # Train the model
-    tr_hist = model.fit(x_train, y_train, epochs=15, verbose=1)
+    tr_hist = model.fit(x_train, y_train, epochs=30, verbose=1)
 
     # Plot training loss over epochs
     plt.plot(tr_hist.history['loss'])
