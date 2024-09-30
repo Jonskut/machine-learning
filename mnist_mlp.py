@@ -75,7 +75,7 @@ def create_model(x_train, y_train):
     model.compile(optimizer=sgd, loss='mse', metrics=['mse'])
 
     # Train the model
-    tr_hist = model.fit(x_train, y_train, epochs=30, verbose=1)
+    tr_hist = model.fit(x_train, y_train, epochs=30, verbose=0)
 
     # Plot training loss over epochs
     plt.plot(tr_hist.history['loss'])
