@@ -61,12 +61,12 @@ def learn(env):
     ospace = env.observation_space.n
 
     qtable = np.zeros((ospace, aspace))  # Taxi
-    episodes = 5000  # More episodes for better learning
-    interactions = 200  # max num of interactions per episode
+    episodes = 15000  # More episodes for better learning
+    interactions = 666  # max num of interactions per episode
     epsilon = 1.0  # Start with higher exploration
-    decay_rate = 0.999  # Epsilon decay per episode
+    decay_rate = 0.0001  # Epsilon decay per episode
     alpha = 0.1  # Learning rate
-    gamma = 0.95  # Reward decay rate
+    gamma = 0.9  # Reward decay rate
     debug = 1  # for non-slippery case to observe learning
     hist = []  # evaluation history
 
@@ -78,7 +78,7 @@ def learn(env):
         total_rewards = 0
 
         for interact in range(interactions):
-            # Correct exploitation vs. exploration
+
             if np.random.uniform(0, 1) < epsilon:
                 action = np.random.randint(0, aspace)  # Explore
             else:
@@ -88,10 +88,9 @@ def learn(env):
             new_state, reward, done, truncated, info = env.step(action)
 
             # Update Q-table
-            qtable[state, action] = qtable[state, action] + alpha * \
-                                    (reward + gamma * np.max(
-                                        qtable[new_state, :]) - qtable[
-                                         state, action])
+            qtable[state, action] = qtable[state, action] + alpha * (
+                    reward + gamma * np.max(
+                        qtable[new_state, :]) - qtable[state, action])
 
             # Our new state is state
             state = new_state
@@ -101,10 +100,13 @@ def learn(env):
                 break
 
         # Decay epsilon
-        epsilon = max(0.01, epsilon * decay_rate)
+        epsilon = max(0.0, epsilon - decay_rate)
+
+        if epsilon == 0:
+            alpha = 0.0001
 
         # Periodically evaluate and debug
-        if episode % 100 == 0 or episode == 1:
+        if episode % 500 == 0 or episode == 1:
             pi = np.argmax(qtable, axis=1)
             val_mean, val_min, val_max, val_std = eval_policy_better(env, pi,
                                                                      gamma,
