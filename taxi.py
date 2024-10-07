@@ -36,10 +36,19 @@ def manual_input(env):
         state, reward, done, truncated, info = env.step(direction)
 
         if done:
-            return env
+            return
 
 
 def eval_policy_better(env_, pi_, gamma_, t_max_, episodes_):
+    """
+    From lecture 11 notebook, evaluates q-table
+    :param env_: environment
+    :param pi_: array, best guesses for each state
+    :param gamma_: float, reward decay rate
+    :param t_max_: int, maximum interactions
+    :param episodes_: int, amount of episodes
+    :return: tuple; mean, max, min, std of q-table accuracy
+    """
     v_pi_rep = np.empty(episodes_)  # N trials
     for e in range(episodes_):
         s_t = env_.reset()[0]
@@ -56,28 +65,36 @@ def eval_policy_better(env_, pi_, gamma_, t_max_, episodes_):
         v_pi_rep)
 
 
-def learn(env):
+def learn():
+    """
+    Modified from lecture 11 notebook, creates gym environment and trains it
+    :return: hist, pi_Q, gamma, env
+    """
+    env = gym.make('Taxi-v3')
+
     aspace = env.action_space.n
     ospace = env.observation_space.n
 
+    print(aspace)
+    print(ospace)
+
     qtable = np.zeros((ospace, aspace))  # Taxi
-    episodes = 15000  # More episodes for better learning
-    interactions = 666  # max num of interactions per episode
+    episodes = 5000  # Num episodes
+    interactions = 200  # max num of interactions per episode
     epsilon = 1.0  # Start with higher exploration
     decay_rate = 0.0001  # Epsilon decay per episode
-    alpha = 0.1  # Learning rate
-    gamma = 0.9  # Reward decay rate
+    alpha = 0.15  # Learning rate
+    gamma = 0.999  # Reward decay rate
     debug = 1  # for non-slippery case to observe learning
     hist = []  # evaluation history
 
     # Main Q-learning loop
     for episode in range(episodes):
         state = env.reset()[0]
-        step = 0
         done = False
-        total_rewards = 0
+        truncated = False
 
-        for interact in range(interactions):
+        while not done and not truncated:
 
             if np.random.uniform(0, 1) < epsilon:
                 action = np.random.randint(0, aspace)  # Explore
@@ -88,16 +105,13 @@ def learn(env):
             new_state, reward, done, truncated, info = env.step(action)
 
             # Update Q-table
+
             qtable[state, action] = qtable[state, action] + alpha * (
                     reward + gamma * np.max(
                         qtable[new_state, :]) - qtable[state, action])
 
             # Our new state is state
             state = new_state
-
-            # Check if terminated
-            if done or truncated:
-                break
 
         # Decay epsilon
         epsilon = max(0.0, epsilon - decay_rate)
@@ -117,14 +131,22 @@ def learn(env):
                 print(pi)
                 print(f"{val_mean} // episode {episode}/{episodes}")
 
-    pi_Q = np.argmax(qtable, axis=1)
+    env.close()
 
-    env.reset()
+    pi_Q = np.argmax(qtable, axis=1)
 
     return hist, pi_Q, gamma, env
 
 
 def plot_performance(hist, env, pi_Q, gamma):
+    """
+    Plots performance values. Modified from lecture 11 notebook
+    :param hist: history values for q-table accuracy
+    :param env: environment
+    :param pi_Q: array, decision table
+    :param gamma: reward decay rate
+    :return: None
+    """
     hist = np.array(hist)
     print(hist.shape)
 
@@ -134,19 +156,19 @@ def plot_performance(hist, env, pi_Q, gamma):
     # Evaluate performance
     print(pi_Q)
     val_mean, val_min, val_max, val_std = eval_policy_better(env, pi_Q, gamma,
-                                                             666, 1000)
+                                                             200, 1000)
     print(f'Value function mean {val_mean:.4f}, min {val_min:.4f} max '
           f'{val_max:.4f} and std {val_std:.4f}')
 
 
 def main():
-    env = gym.make("Taxi-v3", render_mode="ansi")
-    env.reset()
 
     # For testing
+    # env = gym.make("Taxi-v3", render_mode='human')
+    # env.reset()
     # env = manual_input(env)
 
-    hist, pi_Q, gamma, env_trained = learn(env)
+    hist, pi_Q, gamma, env_trained = learn()
 
     plot_performance(hist, env_trained, pi_Q, gamma)
 
