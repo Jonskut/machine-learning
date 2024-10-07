@@ -147,11 +147,6 @@ def plot_performance(hist, env, pi_Q, gamma):
     :param gamma: reward decay rate
     :return: None
     """
-    hist = np.array(hist)
-    print(hist.shape)
-
-    plt.plot(hist[:, 0], hist[:, 1])
-    plt.show()
 
     # Evaluate performance
     print(pi_Q)
@@ -159,6 +154,12 @@ def plot_performance(hist, env, pi_Q, gamma):
                                                              200, 1000)
     print(f'Value function mean {val_mean:.4f}, min {val_min:.4f} max '
           f'{val_max:.4f} and std {val_std:.4f}')
+
+    hist = np.array(hist)
+    print(hist.shape)
+
+    plt.plot(hist[:, 0], hist[:, 1])
+    plt.show()
 
 
 def main():
