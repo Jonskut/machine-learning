@@ -151,7 +151,7 @@ def plot_performance(hist, env, pi_Q, gamma):
     # Evaluate performance
     print(pi_Q)
     val_mean, val_min, val_max, val_std = eval_policy_better(env, pi_Q, gamma,
-                                                             200, 1000)
+                                                             200, 10)
     print(f'Value function mean {val_mean:.4f}, min {val_min:.4f} max '
           f'{val_max:.4f} and std {val_std:.4f}')
 

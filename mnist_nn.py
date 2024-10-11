@@ -60,7 +60,7 @@ def show_accuracy(x_test_flat, x_test, y_test, knn):
 
     for i in range(x_test_flat.shape[0]):
         # Show some images randomly
-        if rand.random() > 0.999:
+        if rand.random() > 0.9985:
 
             plt.figure(1)
             plt.clf()
